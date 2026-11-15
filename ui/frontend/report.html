@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="white">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Risk Assessment Report — PhishGuard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--accent:#f5f8ff;--accent-rgb:245,248,255;--accent-soft:#c9d5e9;--text:#f2f5f8;--muted:#aab6c1;--edge:rgba(245,248,255,.18);--bg:#05090d;--safe:#68d7bb;--caution:#ffd17d;--danger:#ff9b9b}
+    html[data-theme="cyan"]{--accent:#46deff;--accent-rgb:70,222,255;--accent-soft:#9decf9;--edge:rgba(70,222,255,.23)}
+    html[data-theme="blue"]{--accent:#779aff;--accent-rgb:119,154,255;--accent-soft:#b1c3ff;--edge:rgba(119,154,255,.24)}
+    *{box-sizing:border-box} html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}button,a{font:inherit}a{color:inherit;text-decoration:none}button{cursor:pointer}
+    :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+    .background-scene{position:fixed;inset:0;z-index:-4;overflow:hidden;background:#020407;pointer-events:none}
+    .background-scene video{width:100%;height:100%;object-fit:cover;object-position:60% center;opacity:.85;filter:contrast(1.08) brightness(1.10)}
+    .background-scene:before{content:"";position:absolute;inset:0;z-index:2;background:linear-gradient(90deg,rgba(2,6,9,.89),rgba(2,6,9,.62) 42%,rgba(2,6,9,.32) 80%),linear-gradient(180deg,rgba(3,6,10,.61),rgba(3,6,10,.48) 42%,rgba(3,6,10,.93))}
+    .background-noise{position:fixed;inset:0;z-index:-3;background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:80px 80px;pointer-events:none}
+    .site-header{position:sticky;top:0;z-index:40;background:rgba(4,8,12,.77);border-bottom:1px solid var(--edge);backdrop-filter:blur(22px)}
+    .nav{height:76px;max-width:1280px;margin:auto;padding:0 40px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+    .brand{font:700 21px 'Space Grotesk',sans-serif;letter-spacing:.045em;display:flex;align-items:center;gap:12px}.brand-symbol{width:34px;height:38px;background:var(--accent);-webkit-mask:url('phishguard_logo.png') center/contain no-repeat;mask:url('phishguard_logo.png') center/contain no-repeat;filter:drop-shadow(0 0 10px rgba(var(--accent-rgb),.23))}
+    .nav-actions{display:flex;align-items:center;gap:12px}.nav-link{font-size:12px;letter-spacing:.1em;color:#c8d3dc;font-weight:700}.nav-link:hover{color:var(--accent)}
+    .theme-buttons{display:flex;gap:5px;padding:5px;border:1px solid var(--edge);border-radius:12px;background:rgba(8,13,20,.8)}.theme-button{width:27px;height:27px;border:1px solid transparent;background:transparent;border-radius:8px;display:grid;place-items:center}
+    .theme-button[aria-pressed="true"]{border-color:var(--accent);background:rgba(var(--accent-rgb),.08)}.theme-dot{display:block;height:13px;width:13px;border-radius:50%;background:var(--swatch);box-shadow:0 0 9px var(--swatch)}
+    .container{max-width:1280px;margin:auto;padding:76px 40px 110px}.eyebrow{font-size:11px;font-weight:700;letter-spacing:.22em;color:var(--accent);text-transform:uppercase;display:flex;align-items:center;gap:12px}.eyebrow:before{content:"";width:24px;height:1px;background:var(--accent)}
+    h1{font:400 clamp(40px,5.7vw,78px)/1.04 'DM Serif Display',Georgia,serif;margin:18px 0 16px;letter-spacing:-.027em}h1 em{font-style:normal;color:var(--accent)}
+    h2{font:600 21px 'Space Grotesk',sans-serif;margin:0;letter-spacing:-.02em}h3{font:600 13px 'Space Grotesk',sans-serif;margin:0 0 9px;letter-spacing:.03em}p{line-height:1.65}.intro{max-width:700px;font-size:14px;color:#aeb9c3;margin:0 0 36px}
+    .frame{background:rgba(7,13,20,.85);border:1px solid var(--edge);border-radius:20px;box-shadow:0 20px 55px rgba(0,0,0,.22),inset 0 0 50px rgba(var(--accent-rgb),.012);backdrop-filter:blur(14px)}
+    .report-hero{padding:32px 36px;display:grid;grid-template-columns:minmax(0,1fr) 196px;gap:32px;align-items:center;position:relative;overflow:hidden}
+    .report-hero:before{content:"";position:absolute;right:0;top:0;width:240px;height:155px;background-image:linear-gradient(rgba(var(--accent-rgb),.14) 1px,transparent 1px),linear-gradient(90deg,rgba(var(--accent-rgb),.14) 1px,transparent 1px);background-size:23px 23px;mask-image:linear-gradient(225deg,#000,transparent);opacity:.5;pointer-events:none}
+    .tiny{font-size:10px;letter-spacing:.17em;font-weight:700;color:#9daab8;text-transform:uppercase}.label{display:inline-flex;align-items:center;gap:9px;color:var(--accent);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+    .label:before{content:"";height:7px;width:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+    .assessment-title{font:500 clamp(25px,3vw,38px)/1.14 'Space Grotesk',sans-serif;margin:14px 0 13px;letter-spacing:-.035em}
+    .url-value{font-size:14px;color:#d9e4ee;overflow-wrap:anywhere;line-height:1.6;margin:4px 0 13px}.assessment-desc{font-size:13px;color:#aab6c2;max-width:650px;margin:0}
+    .score-ring{height:178px;width:178px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--risk-color,#ffd17d) calc(var(--score,0)*1%),rgba(245,248,255,.12) 0);padding:12px;margin:auto;box-shadow:0 0 28px rgba(var(--accent-rgb),.11)}
+    .score-core{width:100%;height:100%;background:#0a1119;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column}.score-value{font:600 48px/1 'Space Grotesk',sans-serif}.score-caption{font-size:10px;letter-spacing:.15em;color:#aab7c3;margin-top:8px}
+    .metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:17px 0 30px}.metric{padding:21px 23px;min-height:120px}.metric-value{font:600 30px 'Space Grotesk',sans-serif;margin:12px 0 4px}.metric-sub{font-size:11px;color:var(--muted)}
+    .sections{display:grid;grid-template-columns:1fr 1fr;gap:18px}.section{padding:28px;min-width:0}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:20px}.section-kicker{font-size:10px;letter-spacing:.14em;color:#9eafbe;text-transform:uppercase}
+    .evidence{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.evidence-item{padding:13px 15px;background:rgba(255,255,255,.028);border:1px solid rgba(224,240,255,.09);border-radius:12px;min-width:0}.evidence-name{display:block;font-size:11px;color:#9eacb9;margin-bottom:7px}.evidence-value{display:block;font:600 15px 'Space Grotesk',sans-serif;overflow-wrap:anywhere}
+    .finding{padding:15px 0;border-bottom:1px solid rgba(231,245,255,.10);display:flex;align-items:flex-start;gap:16px;justify-content:space-between}.finding:last-child{border-bottom:0}.finding p{font-size:12px;color:#bdcbd4;margin:5px 0 0}.points{font:600 14px 'Space Grotesk',sans-serif;color:var(--caution);white-space:nowrap}
+    .empty{padding:24px 18px;border:1px dashed rgba(245,248,255,.18);border-radius:12px;color:#c8d3dc;font-size:13px;line-height:1.7}.disclosure{margin-top:18px;padding:22px 26px;border:1px solid rgba(255,209,125,.28);border-radius:16px;background:rgba(36,27,14,.58);font-size:13px;color:#ded4c7}.disclosure strong{color:#ffe1a8}.disclosure p{margin:8px 0 0}.coverage{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.coverage span{font-size:11px;color:#c4ced6;border-radius:999px;border:1px solid var(--edge);background:rgba(255,255,255,.03);padding:8px 12px}
+    .actions{display:flex;flex-wrap:wrap;gap:12px;margin:24px 0 0}.action{display:inline-flex;justify-content:center;align-items:center;min-height:45px;border:1px solid var(--edge);border-radius:12px;background:rgba(255,255,255,.055);padding:0 18px;color:#e3ebf2;font-size:12px;font-weight:700;letter-spacing:.03em}.action.primary{background:var(--accent);color:#091018;border-color:var(--accent)}.action:hover{box-shadow:0 0 20px rgba(var(--accent-rgb),.12)}
+    .empty-state{padding:55px 38px;text-align:center}.empty-state h2{font:400 36px 'DM Serif Display',serif;margin:12px 0}.empty-state p{color:var(--muted);margin-bottom:28px}.footer{border-top:1px solid var(--edge);padding:30px 40px;color:#93a3b1;font-size:11px;letter-spacing:.04em}.footer-inner{max-width:1200px;margin:auto;display:flex;justify-content:space-between;gap:20px}
+    .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+    @media(max-width:800px){.container{padding:55px 20px 80px}.nav{padding:0 20px}.nav-link{display:none}.report-hero{grid-template-columns:1fr;padding:28px}.score-ring{width:155px;height:155px;grid-row:1}.metrics{grid-template-columns:1fr}.sections{grid-template-columns:1fr}.footer{padding:28px 20px}.footer-inner{flex-direction:column;gap:8px}}
+    @media(max-width:430px){.brand{font-size:17px}.brand-symbol{width:27px}.report-hero{padding:23px}.section{padding:20px}.evidence{grid-template-columns:1fr}.score-ring{width:140px;height:140px}.score-value{font-size:38px}.theme-button{width:23px}.nav-actions{gap:7px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+    /* V4 additions: evidence guidance and accurate scan provenance */
+    .scan-meta{font-size:11px;color:#a0b3c2;letter-spacing:.025em;margin:-13px 0 25px;line-height:1.6}
+    .explain-card{padding:24px 28px;margin:0 0 22px}
+    .explain-card h2{margin:0 0 12px}
+    .explain-card p{font-size:13px;color:#bdc9d3;margin:0;line-height:1.8}
+    .risk-key{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}
+    .risk-key-item{padding:13px 14px;border:1px solid rgba(233,244,255,.13);background:rgba(255,255,255,.027);border-radius:11px}
+    .risk-key-item strong{display:flex;align-items:center;gap:9px;font-size:12px;color:#e8edf3}
+    .risk-key-item small{display:block;font-size:11px;color:#aebac6;margin-top:8px;line-height:1.55}
+    .risk-key-dot{width:10px;height:10px;display:inline-block;flex:none;border-radius:50%}
+    .why-note{border-top:1px solid rgba(228,242,255,.12);margin-top:16px;padding-top:14px}
+    .details-guide{margin-top:18px;border:1px solid rgba(223,238,255,.12);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.018)}
+    .details-guide summary{cursor:pointer;font:600 12px 'Space Grotesk',sans-serif;color:#dce8f4}
+    .details-guide p{font-size:12px;color:#aab7c4;line-height:1.7;margin:10px 0 0}
+    .evidence-info{display:block;font-size:10px;color:#9cabb9;line-height:1.6;margin-top:6px}
+    @media(max-width:800px){.risk-key{grid-template-columns:1fr}.explain-card{padding:22px}}
+
+    /* Rule evaluation details; uses existing V4 surfaces and accent tokens. */
+    .rule-summary{margin:0 0 16px;color:#bac8d3;font-size:12px;line-height:1.7}
+    .rule-eval{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:15px 0;border-bottom:1px solid rgba(231,245,255,.10)}
+    .rule-eval:last-of-type{border-bottom:0}
+    .rule-eval-body{flex:1;min-width:0}
+    .rule-eval-title{margin:0 0 8px;font:600 13px 'Space Grotesk',sans-serif;color:#ecf1f6}
+    .rule-eval-status{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.02em}
+    .rule-eval-status:before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+    .rule-eval.triggered .rule-eval-status{color:var(--danger)}
+    .rule-eval.not-triggered .rule-eval-status{color:var(--safe)}
+    .rule-eval.not-checked .rule-eval-status{color:#a8b6c4}
+    .rule-eval-description{font-size:11px;line-height:1.65;color:#a7b7c4;margin:7px 0 0}
+    .rule-eval-points{white-space:nowrap;font:600 13px 'Space Grotesk',sans-serif;color:#c5d2de;padding-top:3px}
+    .rule-eval.triggered .rule-eval-points{color:var(--caution)}
+    .rule-note{font-size:11px;color:#98aab9;line-height:1.65;margin:12px 0 2px}
+  </style>
+</head>
+<body>
+  <div class="background-scene" aria-hidden="true"><video autoplay muted loop playsinline preload="metadata"><source src="satellite.mp4" type="video/mp4"></video></div>
+  <div class="background-noise" aria-hidden="true"></div>
+  <header class="site-header"><nav class="nav" aria-label="Navigation">
+    <a class="brand" href="home.html" aria-label="PhishGuard home"><span class="brand-symbol" aria-hidden="true"></span>PHISHGUARD</a>
+    <div class="nav-actions">
+      <a class="nav-link" href="home.html#analyzer">NEW ANALYSIS</a>
+      <div class="theme-buttons" role="group" aria-label="Accent theme">
+        <button class="theme-button" data-theme-choice="white" aria-label="Arctic White" title="Arctic White" aria-pressed="true"><span class="theme-dot" style="--swatch:#f5f8ff"></span></button>
+        <button class="theme-button" data-theme-choice="cyan" aria-label="Electric Cyan" title="Electric Cyan" aria-pressed="false"><span class="theme-dot" style="--swatch:#46deff"></span></button>
+        <button class="theme-button" data-theme-choice="blue" aria-label="Cobalt Blue" title="Cobalt Blue" aria-pressed="false"><span class="theme-dot" style="--swatch:#779aff"></span></button>
+      </div>
+    </div>
+  </nav></header>
+  <main class="container">
+    <div class="eyebrow">03 / URL ANALYSIS REPORT</div>
+    <h1>Risk <em>Assessment</em> Report</h1>
+    <p class="intro">A structured look at URL signals, machine-learning output and the rules that contributed to this assessment.</p>
+    <p class="scan-meta" id="scan-meta" aria-live="polite">Scan details will appear here.</p>
+    <section id="missing" class="frame empty-state" hidden>
+      <div class="eyebrow" style="justify-content:center">NO REPORT FOUND</div>
+      <h2>Start with a website URL.</h2>
+      <p>No analysis has been loaded in this browser tab. Open the analyzer to generate one.</p>
+      <a class="action primary" href="home.html#analyzer">Open URL Analyzer</a>
+    </section>
+    <div id="report" hidden>
+      <section class="frame report-hero" aria-label="Summary">
+        <div>
+          <div class="label" id="assessment-tag">Provisional assessment</div>
+          <h2 class="assessment-title" id="risk-title">Assessment loading</h2>
+          <div class="tiny">URL EXAMINED</div>
+          <div class="url-value" id="assessed-url"></div>
+          <p class="assessment-desc" id="assessment-desc"></p>
+        </div>
+        <div class="score-ring" id="score-ring" role="img" aria-label="Provisional score"><div class="score-core"><span class="score-value" id="risk-score">--</span><span class="score-caption">RISK INDEX / 100</span></div></div>
+      </section>
+      <div class="metrics">
+        <section class="frame metric"><div class="tiny">MODEL CLASS 1 ESTIMATE</div><div class="metric-value" id="model-prob">--</div><div class="metric-sub">Uncalibrated estimate · class meaning unverified</div></section>
+        <section class="frame metric"><div class="tiny">RULE-BASED SCORE</div><div class="metric-value" id="rule-score">--</div><div class="metric-sub">Points from enabled heuristic checks</div></section>
+        <section class="frame metric"><div class="tiny">MODEL CONFIGURATION</div><div class="metric-value" id="model-version" style="font-size:22px">--</div><div class="metric-sub" id="model-detail">19 numerical training features</div></section>
+      </div>
+      <section class="frame explain-card" aria-labelledby="meaning-heading">
+        <h2 id="meaning-heading">How to read this assessment</h2>
+        <p>The colored ring is a <strong>provisional index</strong> from the current model and enabled heuristic checks. It is not a verified probability that the URL is malicious.</p>
+        <div class="risk-key" aria-label="Current risk score ranges">
+          <div class="risk-key-item"><strong><i class="risk-key-dot" style="background:var(--safe)"></i>Low · 0–34.9</strong><small>Lower index under current rules; not proof of safety.</small></div>
+          <div class="risk-key-item"><strong><i class="risk-key-dot" style="background:var(--caution)"></i>Medium · 35–69.9</strong><small>Additional review recommended; not a phishing verdict.</small></div>
+          <div class="risk-key-item"><strong><i class="risk-key-dot" style="background:var(--danger)"></i>High · 70–100</strong><small>Elevated index; independently verify before sharing sensitive information.</small></div>
+        </div>
+        <div class="why-note"><h3>Why this score?</h3><p id="score-explanation">The scoring breakdown will appear once an analysis is loaded.</p></div>
+      </section>
+      <div class="sections">
+        <section class="frame section" aria-labelledby="signals-heading"><div class="section-heading"><h2 id="signals-heading">URL &amp; Domain Evidence</h2><span class="section-kicker">LEXICAL</span></div><div id="evidence" class="evidence"></div><details class="details-guide"><summary>What do these parameters mean?</summary><p><strong>URL length</strong> measures the scheme-independent address. <strong>Path length</strong> counts the path portion. <strong>Dots and subdomains</strong> describe URL structure, not safety on their own. <strong>Suspicious keywords</strong> counts selected phrases found in the URL. <strong>DNS A</strong> indicates an IPv4 lookup response; <strong>MX</strong> concerns incoming mail handling and may legitimately be absent. DNS presence does not verify website ownership or trustworthiness.</p></details></section>
+        <section class="frame section" aria-labelledby="findings-heading"><div class="section-heading"><h2 id="findings-heading">Rule Evaluation Breakdown</h2><span class="section-kicker" id="finding-count">0 FINDINGS</span></div><div id="findings"></div><div class="coverage" id="coverage"></div></section>
+      </div>
+      <aside class="disclosure" aria-label="Assessment limitations"><strong>Experimental analysis — not a security guarantee.</strong><p id="disclaimer">Class-label meaning, score calibration, and decision thresholds are still under validation. A low score does not establish that a website is safe.</p><p id="inspection-notice">Inspection coverage and its limitations will appear here.</p></aside>
+      <div class="actions"><a class="action primary" href="home.html#analyzer">Analyze another URL</a><button class="action" id="copy-summary" type="button">Copy report summary</button><button class="action" id="print-report" type="button">Print report</button></div>
+    </div>
+  </main>
+  <footer class="footer"><div class="footer-inner"><span>PHISHGUARD · V4 VISUAL SYSTEM</span><span>Experimental academic assessment · Not a malware verdict</span></div></footer>
+  <script>
+    (()=>{
+      'use strict';
+      const root=document.documentElement;
+      const validThemes=['white','cyan','blue'];
+      const setTheme=t=>{if(!validThemes.includes(t))return;root.dataset.theme=t;document.querySelectorAll('[data-theme-choice]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.themeChoice===t)));try{localStorage.setItem('phishguard-theme-preview',t)}catch(_){}};
+      try{setTheme(localStorage.getItem('phishguard-theme-preview')||'white')}catch(_){setTheme('white')}
+      document.querySelectorAll('[data-theme-choice]').forEach(b=>b.addEventListener('click',()=>setTheme(b.dataset.themeChoice)));
+      let data=null;
+      try{data=JSON.parse(sessionStorage.getItem('phishguard-last-report')||'null')}catch(_){}
+      if(!data || !data.prediction || !data.risk_assessment){document.getElementById('missing').hidden=false;return;}
+      document.getElementById('report').hidden=false;
+      const put=(id,value)=>document.getElementById(id).textContent=String(value??'Unavailable');
+      const risk=data.risk_assessment;
+      const level=String(risk.risk_level||'Unknown');
+      const color=level==='High'?'var(--danger)':level==='Medium'?'var(--caution)':'var(--safe)';
+      const score=Number(risk.risk_score);
+      const safeScore=Number.isFinite(score)?Math.max(0,Math.min(100,score)):0;
+      const ring=document.getElementById('score-ring');ring.style.setProperty('--score',safeScore);ring.style.setProperty('--risk-color',color);
+      ring.setAttribute('aria-label',`Provisional ${level} risk index: ${safeScore} out of 100`);
+      put('risk-score',Math.round(safeScore));
+      put('risk-title',`Provisional ${level.toLowerCase()} risk`);
+      put('assessment-tag',`Provisional assessment · numerical class ${data.prediction.predicted_label}`);
+      put('assessed-url',data.url);
+      put('assessment-desc',risk.assessment_verdict+' · This index blends an uncalibrated model estimate with heuristic findings. It is not a confirmed phishing verdict.');
+      put('model-prob',(100*Number(data.prediction.probability_label_1)).toFixed(1)+'%');
+      put('rule-score',risk.rule_score+'/100');
+      put('model-version',data.model||'Random Forest V3');
+      put('model-detail',(data.feature_count||19)+' ML features · numerical output only');
+      put('disclaimer',data.disclaimer || 'Class mapping and score calibration are not verified.');
+      const mlScore=Number(risk.model_score);
+      const ruleScore=Number(risk.rule_score);
+      const weighted=0.60*mlScore+0.40*ruleScore;
+      const validScores=[mlScore,ruleScore,weighted].every(Number.isFinite);
+      put('score-explanation',validScores
+        ? `Model index: ${mlScore.toFixed(1)}/100. Enabled heuristic score: ${ruleScore.toFixed(1)}/100. The provisional weighted combination is 60% × ${mlScore.toFixed(1)} + 40% × ${ruleScore.toFixed(1)} = ${weighted.toFixed(1)}. The current scoring policy uses the higher of the model index and weighted combination, resulting in ${safeScore.toFixed(1)}/100. Zero triggered rules does not mean the model scored zero.`
+        : 'The numerical scoring breakdown is unavailable for this report.');
+      const scanParts=[];
+      if(data.scan_id) scanParts.push('Scan ID: '+data.scan_id);
+      if(data.scanned_at){const d=new Date(data.scanned_at);scanParts.push('Analyzed: '+(Number.isNaN(d.getTime())?data.scanned_at:d.toLocaleString()));}
+      put('scan-meta',scanParts.join(' · ')||'Scan details unavailable');
+      const coverageItems=Array.isArray(data.coverage)?data.coverage:[];
+      const dnsPart=coverageItems.find(v=>String(v).startsWith('DNS')) || 'DNS: no inspection status supplied';
+      put('inspection-notice',`${dnsPart}. Live webpage content was not fetched. DNS responses indicate technical records, not website legitimacy.`);
+      const evidence=document.getElementById('evidence');
+      const evidenceDescriptions={
+        'Hostname':'The host portion of the submitted address.',
+        'Protocol observed':'Explicit URL scheme; HTTPS does not guarantee legitimacy.',
+        'DNS A record':'IPv4 record lookup result, not a phishing judgment.',
+        'DNS MX record':'Mail-routing lookup result. Missing or null MX is often normal.',
+        'IPv4 addresses':'Returned IPv4 endpoints. Their presence does not prove trustworthiness.',
+        'DNS diagnostic':'Status of the attempted DNS lookup.',
+        'Suspicious keyword matches':'Count of selected terms, not proof of phishing.'
+      };
+      (Array.isArray(data.evidence)?data.evidence:[]).forEach(entry=>{
+        const item=document.createElement('div');item.className='evidence-item';
+        const name=document.createElement('span');name.className='evidence-name';name.textContent=entry.label||entry.key;
+        const value=document.createElement('span');value.className='evidence-value';value.textContent=String(entry.value??'Not available');
+        item.append(name,value);
+        const info=evidenceDescriptions[entry.label];
+        if(info){const extra=document.createElement('span');extra.className='evidence-info';extra.textContent=info;item.append(extra);}
+        evidence.append(item);
+      });
+      const findings=document.getElementById('findings');
+      const items=Array.isArray(risk.rule_findings)?risk.rule_findings:[];
+      const evaluations=Array.isArray(risk.rule_evaluations)?risk.rule_evaluations:[];
+      // Use V3 rule_evaluations when present; retain fallback for older reports.
+      if(evaluations.length){
+        const triggered=evaluations.filter(r=>r.status==='triggered').length;
+        const notChecked=evaluations.filter(r=>r.status==='not_checked').length;
+        put('finding-count',triggered+' TRIGGERED · '+notChecked+' NOT CHECKED');
+        const intro=document.createElement('p');intro.className='rule-summary';
+        intro.textContent=`${evaluations.length} configured checks · ${triggered} triggered · ${evaluations.length-triggered-notChecked} found no configured indicator · ${notChecked} not checked. Rule score: ${risk.rule_score}/100.`;
+        findings.append(intro);
+        evaluations.forEach(rule=>{
+          const status=(['triggered','not_triggered','not_checked'].includes(rule.status))?rule.status:'not_checked';
+          const row=document.createElement('div');row.className='rule-eval '+status.replaceAll('_','-');
+          const body=document.createElement('div');body.className='rule-eval-body';
+          const title=document.createElement('h3');title.className='rule-eval-title';title.textContent=rule.title||rule.feature||'Rule';
+          const statusLabel=document.createElement('span');statusLabel.className='rule-eval-status';
+          statusLabel.textContent=status==='triggered'?'Triggered':status==='not_triggered'?'No indicator':'Not checked';
+          body.append(title,statusLabel);
+          if(status==='triggered'){
+            const description=document.createElement('p');description.className='rule-eval-description';
+            description.textContent=rule.description||'This rule contributed to the heuristic score.';
+            body.append(description);
+          }else if(status==='not_checked'){
+            const description=document.createElement('p');description.className='rule-eval-description';
+            description.textContent='Evidence needed for this check was unavailable or not inspected.';
+            body.append(description);
+          }
+          const points=document.createElement('span');points.className='rule-eval-points';
+          points.textContent=status==='not_checked'?'—':status==='triggered'?'+'+Number(rule.points||0).toFixed(0)+' pts':'0 pts';
+          row.append(body,points);findings.append(row);
+        });
+        const note=document.createElement('p');note.className='rule-note';
+        note.textContent='No indicator means this specific rule did not trigger; it does not certify a website as safe. Rules not checked contribute no points.';
+        findings.append(note);
+      }else{
+        // Compatibility with reports created before the rule breakdown was added.
+        put('finding-count',items.length+' FINDING'+(items.length===1?'':'S'));
+        if(!items.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='No heuristic indicators fired in the enabled checks. This does not establish that the URL is safe.';findings.append(empty);}
+        items.forEach(item=>{
+          const row=document.createElement('div');row.className='finding';
+          const detail=document.createElement('div');const heading=document.createElement('h3');heading.textContent=String(item.feature||'Indicator').replaceAll('_',' ');
+          const description=document.createElement('p');description.textContent=item.description||'';detail.append(heading,description);
+          const points=document.createElement('span');points.className='points';points.textContent='+'+Number(item.points||0).toFixed(0)+' pts';
+          row.append(detail,points);findings.append(row);
+        });
+      }
+      const coverage=document.getElementById('coverage');
+      (coverageItems.length?coverageItems:['URL and domain: analyzed','DNS: status unavailable','Live webpage: not inspected']).forEach(t=>{const span=document.createElement('span');span.textContent=t;coverage.append(span)});
+      document.getElementById('copy-summary').addEventListener('click',async()=>{
+        const summary=`PhishGuard experimental report\nURL: ${data.url}\nV3 numerical class: ${data.prediction.predicted_label}\nP(class 1): ${(Number(data.prediction.probability_label_1)*100).toFixed(1)}% (uncalibrated)\nProvisional risk index: ${safeScore}/100 (${level})\nRule findings: ${items.map(x=>x.description).join('; ')||'None in checked signals'}\nClass-label mapping not verified. ${dnsPart}. Live webpage not inspected. Scan ID: ${data.scan_id||'unavailable'}.`;
+        try{await navigator.clipboard.writeText(summary);document.getElementById('copy-summary').textContent='Copied'}catch(_){document.getElementById('copy-summary').textContent='Copy unavailable'}
+      });
+      document.getElementById('print-report').addEventListener('click',()=>window.print());
+    })();
+  </script>
+</body>
+</html>

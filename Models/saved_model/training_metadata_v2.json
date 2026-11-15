@@ -1,0 +1,133 @@
+{
+    "project": "PhishGuard",
+    "model_version": "v2",
+    "trained_at": "2026-11-12T11:34:07.686654+00:00",
+    "selected_model": "Random Forest",
+    "best_validation_model": "Random Forest",
+    "dataset_path": "C:\\Users\\Dwij Pathak\\OneDrive\\Documents\\Programming 3rd year\\Phishing_website_detection_f1\\For_testing[pipeline_based]\\phishguard_ml_features_v2.csv",
+    "total_records": 10000,
+    "feature_count": 19,
+    "features": [
+        "url_length",
+        "num_dots",
+        "num_hyphens",
+        "num_underscores",
+        "num_slashes",
+        "num_question_marks",
+        "num_equal_signs",
+        "num_at_symbols",
+        "num_percent_symbols",
+        "num_path_segments",
+        "path_length",
+        "query_length",
+        "num_query_parameters",
+        "hostname_length",
+        "has_ip_address",
+        "suspicious_keyword_count",
+        "domain_length",
+        "subdomain_count",
+        "has_punycode"
+    ],
+    "excluded_features": [
+        "is_https"
+    ],
+    "target_column": "label",
+    "positive_class": 1,
+    "label_meaning_verified": false,
+    "label_distribution": {
+        "1": 5000,
+        "0": 5000
+    },
+    "dataset_split": {
+        "training": 6000,
+        "validation": 2000,
+        "testing": 2000
+    },
+    "validation_results": {
+        "Random Forest": {
+            "accuracy": 0.8405,
+            "precision": 0.8470948012232415,
+            "recall": 0.831,
+            "f1_score": 0.8389702170620899,
+            "confusion_matrix": [
+                [
+                    850,
+                    150
+                ],
+                [
+                    169,
+                    831
+                ]
+            ]
+        },
+        "Decision Tree": {
+            "accuracy": 0.794,
+            "precision": 0.8202614379084967,
+            "recall": 0.753,
+            "f1_score": 0.7851929092805006,
+            "confusion_matrix": [
+                [
+                    835,
+                    165
+                ],
+                [
+                    247,
+                    753
+                ]
+            ]
+        },
+        "Logistic Regression": {
+            "accuracy": 0.7435,
+            "precision": 0.7739032620922385,
+            "recall": 0.688,
+            "f1_score": 0.7284277395447326,
+            "confusion_matrix": [
+                [
+                    799,
+                    201
+                ],
+                [
+                    312,
+                    688
+                ]
+            ]
+        }
+    },
+    "final_test_results": {
+        "accuracy": 0.8355,
+        "precision": 0.8413021363173957,
+        "recall": 0.827,
+        "f1_score": 0.8340897629853757,
+        "confusion_matrix": [
+            [
+                844,
+                156
+            ],
+            [
+                173,
+                827
+            ]
+        ]
+    },
+    "feature_importances": {
+        "suspicious_keyword_count": 0.1360543963184865,
+        "url_length": 0.11267789916166127,
+        "path_length": 0.10823582485834274,
+        "num_dots": 0.10330235249121614,
+        "num_hyphens": 0.09512727338180793,
+        "domain_length": 0.08533766660407828,
+        "hostname_length": 0.07102060019947701,
+        "num_slashes": 0.06513546196404922,
+        "num_path_segments": 0.04454579534605898,
+        "query_length": 0.04362581602186089,
+        "num_underscores": 0.04292603569383179,
+        "subdomain_count": 0.04184362288827633,
+        "num_equal_signs": 0.017874002218049016,
+        "num_query_parameters": 0.01137455686536549,
+        "has_ip_address": 0.008851001147355975,
+        "num_question_marks": 0.006950992847283682,
+        "num_percent_symbols": 0.0035373777042855036,
+        "num_at_symbols": 0.0013558171456980936,
+        "has_punycode": 0.00022350714281512993
+    }
+}
