@@ -34,8 +34,8 @@ def extract_all_features(
     # 2. Domain features
     domain_feats = extract_domain_features(url)
 
-    # 3. Extract the hostname for DNS analysis
-    hostname = urlparse(url).hostname or ""
+    # 3. Extract the validated hostname for DNS analysis
+    hostname = url_feats.get("hostname") or domain_feats.get("hostname") or ""
 
     # 4. DNS features
     dns_feats = extract_dns_features(hostname)

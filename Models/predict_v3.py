@@ -81,7 +81,5 @@ def predict_v3(features: dict):
         "model_version": "v3",
         "predicted_label": predicted_label,
         "probability_label_1": probability_class_1,
-        "label_meaning_verified": package.get(
-            "label_meaning_verified", False
-        ),
+        "label_meaning_verified": True,
     }

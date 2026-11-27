@@ -29,7 +29,7 @@ def show_home():
             data={'report': report},
             on_back_change=lambda: None,
         )
-        if result.back:
+        if getattr(result, 'back', None):
             st.session_state.pop('phishguard_report', None)
             st.rerun()
         return
@@ -42,9 +42,10 @@ def show_home():
         on_analyze_change=lambda: None,
     )
 
-    if result.analyze:
+    analyze_target = getattr(result, 'analyze', None)
+    if analyze_target:
         try:
-            st.session_state['phishguard_report'] = analyze_url(result.analyze)
+            st.session_state['phishguard_report'] = analyze_url(analyze_target)
         except (ValueError, KeyError) as exc:
             st.session_state['phishguard_error'] = str(exc)
         except Exception:

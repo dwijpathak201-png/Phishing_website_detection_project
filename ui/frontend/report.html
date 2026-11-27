@@ -80,6 +80,31 @@
     .rule-eval-points{white-space:nowrap;font:600 13px 'Space Grotesk',sans-serif;color:#c5d2de;padding-top:3px}
     .rule-eval.triggered .rule-eval-points{color:var(--caution)}
     .rule-note{font-size:11px;color:#98aab9;line-height:1.65;margin:12px 0 2px}
+
+    /* V4 / V3.1 report integration: status, configured brand identity, warnings. */
+    .assessment-context{margin:15px 0 0;font-size:11px;line-height:1.7;color:#bac9d6;letter-spacing:.018em}
+    .identity-card{padding:25px 28px;margin:17px 0 0}
+    .identity-head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;margin-bottom:16px}
+    .identity-state{font:600 12px 'Space Grotesk',sans-serif;letter-spacing:.035em;line-height:1.65}
+    .identity-state.alert{color:var(--danger)}.identity-state.reference{color:var(--safe)}.identity-state.unknown{color:#c1cdd9}
+    .identity-copy{font-size:13px;color:#bccad5;line-height:1.8;margin:0 0 8px}
+    .identity-detail{font-size:12px;color:#99adbd;line-height:1.7;margin:8px 0 0;overflow-wrap:anywhere}
+    .advisory-heading{margin:18px 0 8px;font:600 12px 'Space Grotesk',sans-serif;color:#e9d4ac}
+    .advisory-list{padding-left:20px;margin:0;font-size:12px;color:#dfd0b8;line-height:1.75}
+    .advisory-list li+li{margin-top:6px}
+    .identity-reference{font-size:12px;color:#d5e2ec;line-height:1.65;margin-top:9px;overflow-wrap:anywhere}
+    .risk-band-note{font-size:11px;color:#9dabb7;line-height:1.65;margin-top:10px}
+    @media(max-width:800px){.identity-card{padding:22px;margin-top:15px}}
+    @media print{
+      body{background:#fff!important;color:#151a20!important}
+      .background-scene,.background-noise,.theme-buttons,.actions{display:none!important}
+      .frame{background:#fff!important;box-shadow:none!important;border-color:#8c99a5!important}
+      .site-header{background:#fff!important}
+      .frame *,p,.nav-link,.tiny,.brand{color:#171c24!important}
+      .score-core{background:#fff!important}
+      .score-ring{box-shadow:none!important}
+      .identity-card,.section,.report-hero{break-inside:avoid}
+    }
   </style>
 </head>
 <body>
@@ -115,8 +140,23 @@
           <div class="tiny">URL EXAMINED</div>
           <div class="url-value" id="assessed-url"></div>
           <p class="assessment-desc" id="assessment-desc"></p>
+          <p class="assessment-context" id="risk-band-note" aria-live="polite"></p>
         </div>
         <div class="score-ring" id="score-ring" role="img" aria-label="Provisional score"><div class="score-core"><span class="score-value" id="risk-score">--</span><span class="score-caption">RISK INDEX / 100</span></div></div>
+      </section>
+      <section class="frame identity-card" aria-labelledby="identity-heading">
+        <div class="identity-head">
+          <h2 id="identity-heading">Domain Identity &amp; Assessment Status</h2>
+          <span class="identity-state unknown" id="identity-state" aria-live="polite">Awaiting check</span>
+        </div>
+        <p class="identity-copy" id="identity-copy"></p>
+        <p class="identity-reference" id="identity-reference" hidden></p>
+        <p class="identity-detail" id="identity-detail" hidden></p>
+        <p class="risk-band-note" id="identity-index-note"></p>
+        <div id="advisory-wrap" hidden>
+          <h3 class="advisory-heading">Assessment warnings</h3>
+          <ul class="advisory-list" id="assessment-warnings"></ul>
+        </div>
       </section>
       <div class="metrics">
         <section class="frame metric"><div class="tiny">MODEL CLASS 1 ESTIMATE</div><div class="metric-value" id="model-prob">--</div><div class="metric-sub">Uncalibrated estimate · class meaning unverified</div></section>
@@ -134,7 +174,7 @@
         <div class="why-note"><h3>Why this score?</h3><p id="score-explanation">The scoring breakdown will appear once an analysis is loaded.</p></div>
       </section>
       <div class="sections">
-        <section class="frame section" aria-labelledby="signals-heading"><div class="section-heading"><h2 id="signals-heading">URL &amp; Domain Evidence</h2><span class="section-kicker">LEXICAL</span></div><div id="evidence" class="evidence"></div><details class="details-guide"><summary>What do these parameters mean?</summary><p><strong>URL length</strong> measures the scheme-independent address. <strong>Path length</strong> counts the path portion. <strong>Dots and subdomains</strong> describe URL structure, not safety on their own. <strong>Suspicious keywords</strong> counts selected phrases found in the URL. <strong>DNS A</strong> indicates an IPv4 lookup response; <strong>MX</strong> concerns incoming mail handling and may legitimately be absent. DNS presence does not verify website ownership or trustworthiness.</p></details></section>
+        <section class="frame section" aria-labelledby="signals-heading"><div class="section-heading"><h2 id="signals-heading">URL &amp; Domain Evidence</h2><span class="section-kicker">LEXICAL</span></div><div id="evidence" class="evidence"></div><details class="details-guide"><summary>What do these parameters mean?</summary><p><strong>URL length</strong> measures the scheme-independent address. <strong>Path length</strong> counts the path portion. <strong>Dots and subdomains</strong> describe URL structure, not safety on their own. <strong>Suspicious keywords</strong> counts selected phrases found in the URL. <strong>DNS A</strong> indicates an IPv4 lookup response; <strong>MX</strong> concerns incoming mail handling and may legitimately be absent. DNS presence does not verify website ownership or trustworthiness. <strong>Brand-reference status</strong> compares domain identity against a limited configured list. An official-reference match is not an independent security certification, and an unknown brand is not necessarily dangerous.</p></details></section>
         <section class="frame section" aria-labelledby="findings-heading"><div class="section-heading"><h2 id="findings-heading">Rule Evaluation Breakdown</h2><span class="section-kicker" id="finding-count">0 FINDINGS</span></div><div id="findings"></div><div class="coverage" id="coverage"></div></section>
       </div>
       <aside class="disclosure" aria-label="Assessment limitations"><strong>Experimental analysis — not a security guarantee.</strong><p id="disclaimer">Class-label meaning, score calibration, and decision thresholds are still under validation. A low score does not establish that a website is safe.</p><p id="inspection-notice">Inspection coverage and its limitations will appear here.</p></aside>
@@ -152,39 +192,131 @@
       document.querySelectorAll('[data-theme-choice]').forEach(b=>b.addEventListener('click',()=>setTheme(b.dataset.themeChoice)));
       let data=null;
       try{data=JSON.parse(sessionStorage.getItem('phishguard-last-report')||'null')}catch(_){}
-      if(!data || !data.prediction || !data.risk_assessment){document.getElementById('missing').hidden=false;return;}
+      if(!data || typeof data!=='object' || !data.prediction || !data.risk_assessment){
+        document.getElementById('missing').hidden=false;
+        document.getElementById('scan-meta').hidden=true;
+        return;
+      }
       document.getElementById('report').hidden=false;
-      const put=(id,value)=>document.getElementById(id).textContent=String(value??'Unavailable');
-      const risk=data.risk_assessment;
-      const level=String(risk.risk_level||'Unknown');
-      const color=level==='High'?'var(--danger)':level==='Medium'?'var(--caution)':'var(--safe)';
-      const score=Number(risk.risk_score);
-      const safeScore=Number.isFinite(score)?Math.max(0,Math.min(100,score)):0;
-      const ring=document.getElementById('score-ring');ring.style.setProperty('--score',safeScore);ring.style.setProperty('--risk-color',color);
-      ring.setAttribute('aria-label',`Provisional ${level} risk index: ${safeScore} out of 100`);
-      put('risk-score',Math.round(safeScore));
-      put('risk-title',`Provisional ${level.toLowerCase()} risk`);
-      put('assessment-tag',`Provisional assessment · numerical class ${data.prediction.predicted_label}`);
-      put('assessed-url',data.url);
-      put('assessment-desc',risk.assessment_verdict+' · This index blends an uncalibrated model estimate with heuristic findings. It is not a confirmed phishing verdict.');
-      put('model-prob',(100*Number(data.prediction.probability_label_1)).toFixed(1)+'%');
-      put('rule-score',risk.rule_score+'/100');
+      const put=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=String(value??'Unavailable');};
+      const asObject=value=>value && typeof value==='object' && !Array.isArray(value)?value:{};
+      const asNumber=value=>{
+        if(value===null || value===undefined || value==='' || typeof value==='boolean') return null;
+        const n=Number(value);return Number.isFinite(n)?n:null;
+      };
+      const showValue=(n,digits=1)=>n===null?'—':n.toFixed(digits);
+      const risk=asObject(data.risk_assessment);
+      const prediction=asObject(data.prediction);
+      const level=['Low','Medium','High'].includes(risk.risk_level)?risk.risk_level:'Unknown';
+      const score=asNumber(risk.risk_score);
+      const safeScore=score===null?null:Math.max(0,Math.min(100,score));
+      const color=level==='High'?'var(--danger)':level==='Medium'?'var(--caution)':level==='Low'?'var(--safe)':'var(--muted)';
+      const ring=document.getElementById('score-ring');
+      ring.style.setProperty('--score',safeScore??0);
+      ring.style.setProperty('--risk-color',color);
+      ring.setAttribute('aria-label',safeScore===null?'Provisional risk index unavailable':`Provisional ${level} risk index: ${safeScore} out of 100`);
+      put('risk-score',safeScore===null?'—':Math.round(safeScore));
+      put('risk-band-note',safeScore===null?'Risk index unavailable':`Numerical risk band: ${level} · ${safeScore.toFixed(1)}/100. Identity warnings are assessed separately.`);
+
+      /* Identity/status fields are produced by the Python V3.1 pipeline.
+         Never infer legitimacy from a URL string, hostname substring, or DNS presence here. */
+      const brand=asObject(data.brand_analysis);
+      const detail=asObject(data.brand_alert_details || risk.brand_alert_details);
+      const urlFeatures=asObject(data.url_features);
+      const domainFeatures=asObject(data.domain_features);
+      const brandStatus=String(brand.status || brand.brand_domain_status || detail.status || detail.brand_domain_status ||
+        domainFeatures.brand_domain_status || urlFeatures.brand_domain_status || 'not_checked');
+      const brandName=brand.brand || brand.brand_name || detail.brand_name || domainFeatures.brand_name || urlFeatures.brand_name || null;
+      const referenceDomain=brand.reference_domain || brand.brand_reference_domain || detail.reference_domain ||
+        domainFeatures.brand_reference_domain || urlFeatures.brand_reference_domain || null;
+      const brandReason=brand.reason || brand.brand_detection_reason || detail.reason || domainFeatures.brand_detection_reason || urlFeatures.brand_detection_reason || '';
+      const rawStatus=data.assessment_status || risk.assessment_status || 'provisional';
+      const brandAlert=(risk.brand_alert===true || data.brand_alert===true || brand.alert===true || brandStatus==='possible_impersonation' || rawStatus==='potential_impersonation');
+      const inconclusive=(risk.model_is_inconclusive===true || data.model_is_inconclusive===true || rawStatus==='inconclusive');
+      const assessmentStatus=brandAlert?'potential_impersonation':inconclusive?'inconclusive':'provisional';
+
+      const tag=assessmentStatus==='potential_impersonation'?'POTENTIAL BRAND IMPERSONATION':
+        assessmentStatus==='inconclusive'?'INCONCLUSIVE MODEL RESULT':'PROVISIONAL ASSESSMENT';
+      const headline=assessmentStatus==='potential_impersonation'?'Potential Brand Impersonation':
+        assessmentStatus==='inconclusive'?'Inconclusive Assessment':`Provisional ${level.toLowerCase()} risk`;
+      const classLabel=prediction.predicted_label??'unavailable';
+      put('assessment-tag',`${tag} · MODEL CLASS ${classLabel}`);
+      put('risk-title',headline);
+      put('assessed-url',data.url||'URL unavailable');
+      const verdict=String(risk.assessment_verdict||'A provisional model-and-rule assessment was generated.');
+      const context=brandAlert?'A brand lookalike indicator was triggered. Verify the complete domain independently before entering credentials.':
+        inconclusive?'The model estimate falls in the provisional 40–60% uncertainty band. More evidence is needed.':
+        'This combines an uncalibrated model estimate with provisional heuristics; it is not a confirmed phishing verdict.';
+      put('assessment-desc',`${verdict} · ${context}`);
+
+      const identityState=document.getElementById('identity-state');
+      const identityReference=document.getElementById('identity-reference');
+      const identityDetail=document.getElementById('identity-detail');
+      const identityIndexNote=document.getElementById('identity-index-note');
+      identityState.className='identity-state';
+      if(brandAlert){
+        identityState.textContent='POTENTIAL IMPERSONATION';identityState.classList.add('alert');
+        put('identity-copy',`The brand-matching rules detected a potential impersonation${brandName?' of '+brandName:''}. This is a warning, not a confirmed malicious-domain classification.`);
+      }else if(brandStatus==='official_reference'){
+        identityState.textContent='CONFIGURED REFERENCE MATCH';identityState.classList.add('reference');
+        put('identity-copy',`This domain matches the configured reference for ${brandName||'a recognized brand'}. The check compares domain structure against a limited reference list; it does not certify webpage safety or confirm live ownership.`);
+      }else if(brandStatus==='unrecognized'){
+        identityState.textContent='NO CONFIGURED BRAND MATCH';identityState.classList.add('unknown');
+        put('identity-copy','The configured brand rules did not recognize a protected brand. This does not prove the domain is legitimate or malicious.');
+      }else{
+        identityState.textContent='BRAND CHECK UNAVAILABLE';identityState.classList.add('unknown');
+        put('identity-copy','No usable configured brand-reference result was supplied by the analysis service. Domain ownership and page content have not been authenticated.');
+      }
+      if(referenceDomain){
+        identityReference.hidden=false;
+        identityReference.textContent=`Configured reference domain: ${referenceDomain}${brandName?' · '+brandName:''}`;
+      }
+      if(brandReason){identityDetail.hidden=false;identityDetail.textContent=`Brand-analysis note: ${brandReason}`;}
+      if(brandStatus==='official_reference' && (level==='Medium'||level==='High')){
+        identityIndexNote.textContent='The reference-domain match and numerical risk score are separate observations. This result contains mixed signals; do not treat the model estimate as proof that this reference domain is phishing.';
+      }else if(brandStatus==='official_reference'){
+        identityIndexNote.textContent='An official-reference match is not an allowlist bypass: the numerical risk score is displayed without alteration.';
+      }else if(brandAlert){
+        identityIndexNote.textContent='The potential-impersonation alert takes priority in the headline; the original numerical Low/Medium/High risk band and score remain unchanged.';
+      }else if(inconclusive){
+        identityIndexNote.textContent='Inconclusive describes model uncertainty, not an additional numerical risk band. The original index remains visible.';
+      }else{
+        identityIndexNote.textContent='The brand check and risk index are provisional and cannot establish site safety.';
+      }
+
+      const suppliedWarnings=[
+        ...(Array.isArray(risk.assessment_warnings)?risk.assessment_warnings:typeof risk.assessment_warnings==='string'?[risk.assessment_warnings]:[]),
+        ...(Array.isArray(data.assessment_warnings)?data.assessment_warnings:typeof data.assessment_warnings==='string'?[data.assessment_warnings]:[])
+      ];
+      const warnings=[...new Set(suppliedWarnings.map(x=>String(x).trim()).filter(Boolean))];
+      if(brandAlert && !warnings.some(x=>/impersonat/i.test(x))) warnings.push('Possible impersonation indicator; confirm the registrable domain independently.');
+      if(inconclusive && !warnings.some(x=>/model|inconclusive|uncertain|50%/i.test(x))) warnings.push('The model estimate lies in the provisional 40–60% inconclusive band.');
+      if(warnings.length){
+        document.getElementById('advisory-wrap').hidden=false;
+        const warningList=document.getElementById('assessment-warnings');
+        warnings.forEach(message=>{const li=document.createElement('li');li.textContent=message;warningList.append(li);});
+      }
+
+      const p1=asNumber(prediction.probability_label_1);
+      put('model-prob',p1===null?'—':`${(p1*100).toFixed(1)}%`);
+      put('rule-score',asNumber(risk.rule_score)===null?'—':`${showValue(asNumber(risk.rule_score))}/100`);
       put('model-version',data.model||'Random Forest V3');
-      put('model-detail',(data.feature_count||19)+' ML features · numerical output only');
-      put('disclaimer',data.disclaimer || 'Class mapping and score calibration are not verified.');
-      const mlScore=Number(risk.model_score);
-      const ruleScore=Number(risk.rule_score);
-      const weighted=0.60*mlScore+0.40*ruleScore;
-      const validScores=[mlScore,ruleScore,weighted].every(Number.isFinite);
-      put('score-explanation',validScores
-        ? `Model index: ${mlScore.toFixed(1)}/100. Enabled heuristic score: ${ruleScore.toFixed(1)}/100. The provisional weighted combination is 60% × ${mlScore.toFixed(1)} + 40% × ${ruleScore.toFixed(1)} = ${weighted.toFixed(1)}. The current scoring policy uses the higher of the model index and weighted combination, resulting in ${safeScore.toFixed(1)}/100. Zero triggered rules does not mean the model scored zero.`
+      put('model-detail',`${data.feature_count??'Unknown'} ML features · numerical output only`);
+      put('disclaimer',data.disclaimer || 'Model class labels, score calibration and risk thresholds require independent validation.');
+      const breakdown=asObject(risk.scoring_breakdown);
+      const mlScore=asNumber(breakdown.model_score??risk.model_score);
+      const ruleScore=asNumber(breakdown.rule_score??risk.rule_score);
+      const weighted=asNumber(breakdown.weighted_score);
+      const calculatedWeighted=weighted??(mlScore!==null&&ruleScore!==null?0.60*mlScore+0.40*ruleScore:null);
+      put('score-explanation',[mlScore,ruleScore,calculatedWeighted,safeScore].every(v=>v!==null)
+        ? `Model index: ${mlScore.toFixed(1)}/100. Enabled heuristic score: ${ruleScore.toFixed(1)}/100. The provisional weighted combination is 60% × ${mlScore.toFixed(1)} + 40% × ${ruleScore.toFixed(1)} = ${calculatedWeighted.toFixed(1)}. The current policy retains the higher of model index and weighted combination, producing ${safeScore.toFixed(1)}/100. A lack of triggered rules does not mean the model score is zero. An identity warning does not silently change this index.`
         : 'The numerical scoring breakdown is unavailable for this report.');
       const scanParts=[];
       if(data.scan_id) scanParts.push('Scan ID: '+data.scan_id);
       if(data.scanned_at){const d=new Date(data.scanned_at);scanParts.push('Analyzed: '+(Number.isNaN(d.getTime())?data.scanned_at:d.toLocaleString()));}
       put('scan-meta',scanParts.join(' · ')||'Scan details unavailable');
       const coverageItems=Array.isArray(data.coverage)?data.coverage:[];
-      const dnsPart=coverageItems.find(v=>String(v).startsWith('DNS')) || 'DNS: no inspection status supplied';
+      const dnsPart=coverageItems.find(v=>String(v).startsWith('DNS'))||'DNS: no inspection status supplied';
       put('inspection-notice',`${dnsPart}. Live webpage content was not fetched. DNS responses indicate technical records, not website legitimacy.`);
       const evidence=document.getElementById('evidence');
       const evidenceDescriptions={
@@ -194,11 +326,16 @@
         'DNS MX record':'Mail-routing lookup result. Missing or null MX is often normal.',
         'IPv4 addresses':'Returned IPv4 endpoints. Their presence does not prove trustworthiness.',
         'DNS diagnostic':'Status of the attempted DNS lookup.',
-        'Suspicious keyword matches':'Count of selected terms, not proof of phishing.'
+        'Suspicious keyword matches':'Count of selected terms, not proof of phishing.',
+        'Brand domain status':'Provisional comparison against configured reference domains; not an ownership or security audit.',
+        'Brand name':'Brand recognized by the configured reference/lookalike rules.',
+        'Brand reference domain':'The configured comparison domain, not a live authentication result.',
+        'Brand detection reason':'Why the configured brand-matching logic returned this result.'
       };
       (Array.isArray(data.evidence)?data.evidence:[]).forEach(entry=>{
+        if(!entry || typeof entry!=='object')return;
         const item=document.createElement('div');item.className='evidence-item';
-        const name=document.createElement('span');name.className='evidence-name';name.textContent=entry.label||entry.key;
+        const name=document.createElement('span');name.className='evidence-name';name.textContent=entry.label||entry.key||'Signal';
         const value=document.createElement('span');value.className='evidence-value';value.textContent=String(entry.value??'Not available');
         item.append(name,value);
         const info=evidenceDescriptions[entry.label];
@@ -207,56 +344,72 @@
       });
       const findings=document.getElementById('findings');
       const items=Array.isArray(risk.rule_findings)?risk.rule_findings:[];
-      const evaluations=Array.isArray(risk.rule_evaluations)?risk.rule_evaluations:[];
-      // Use V3 rule_evaluations when present; retain fallback for older reports.
+      const evaluations=Array.isArray(risk.rule_evaluations)?risk.rule_evaluations:
+        (Array.isArray(data.rule_evaluations)?data.rule_evaluations:[]);
       if(evaluations.length){
-        const triggered=evaluations.filter(r=>r.status==='triggered').length;
-        const notChecked=evaluations.filter(r=>r.status==='not_checked').length;
+        const triggered=evaluations.filter(r=>r&&r.status==='triggered').length;
+        const notChecked=evaluations.filter(r=>r&&r.status==='not_checked').length;
         put('finding-count',triggered+' TRIGGERED · '+notChecked+' NOT CHECKED');
         const intro=document.createElement('p');intro.className='rule-summary';
-        intro.textContent=`${evaluations.length} configured checks · ${triggered} triggered · ${evaluations.length-triggered-notChecked} found no configured indicator · ${notChecked} not checked. Rule score: ${risk.rule_score}/100.`;
+        intro.textContent=`${evaluations.length} configured checks · ${triggered} triggered · ${evaluations.length-triggered-notChecked} found no configured indicator · ${notChecked} not checked. Rule score: ${showValue(ruleScore)}/100.`;
         findings.append(intro);
         evaluations.forEach(rule=>{
-          const status=(['triggered','not_triggered','not_checked'].includes(rule.status))?rule.status:'not_checked';
+          if(!rule || typeof rule!=='object')return;
+          const status=['triggered','not_triggered','not_checked'].includes(rule.status)?rule.status:'not_checked';
           const row=document.createElement('div');row.className='rule-eval '+status.replaceAll('_','-');
           const body=document.createElement('div');body.className='rule-eval-body';
           const title=document.createElement('h3');title.className='rule-eval-title';title.textContent=rule.title||rule.feature||'Rule';
           const statusLabel=document.createElement('span');statusLabel.className='rule-eval-status';
           statusLabel.textContent=status==='triggered'?'Triggered':status==='not_triggered'?'No indicator':'Not checked';
           body.append(title,statusLabel);
-          if(status==='triggered'){
+          if(status==='triggered' || status==='not_checked'){
             const description=document.createElement('p');description.className='rule-eval-description';
-            description.textContent=rule.description||'This rule contributed to the heuristic score.';
-            body.append(description);
-          }else if(status==='not_checked'){
-            const description=document.createElement('p');description.className='rule-eval-description';
-            description.textContent='Evidence needed for this check was unavailable or not inspected.';
+            description.textContent=status==='triggered'?(rule.description||'This rule contributed to the heuristic score.'):
+              'Evidence needed for this check was unavailable or not inspected.';
             body.append(description);
           }
           const points=document.createElement('span');points.className='rule-eval-points';
-          points.textContent=status==='not_checked'?'—':status==='triggered'?'+'+Number(rule.points||0).toFixed(0)+' pts':'0 pts';
+          points.textContent=status==='not_checked'?'—':status==='triggered'?'+'+showValue(asNumber(rule.points),0)+' pts':'0 pts';
           row.append(body,points);findings.append(row);
         });
         const note=document.createElement('p');note.className='rule-note';
         note.textContent='No indicator means this specific rule did not trigger; it does not certify a website as safe. Rules not checked contribute no points.';
         findings.append(note);
       }else{
-        // Compatibility with reports created before the rule breakdown was added.
         put('finding-count',items.length+' FINDING'+(items.length===1?'':'S'));
         if(!items.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='No heuristic indicators fired in the enabled checks. This does not establish that the URL is safe.';findings.append(empty);}
         items.forEach(item=>{
+          if(!item || typeof item!=='object')return;
           const row=document.createElement('div');row.className='finding';
           const detail=document.createElement('div');const heading=document.createElement('h3');heading.textContent=String(item.feature||'Indicator').replaceAll('_',' ');
           const description=document.createElement('p');description.textContent=item.description||'';detail.append(heading,description);
-          const points=document.createElement('span');points.className='points';points.textContent='+'+Number(item.points||0).toFixed(0)+' pts';
+          const points=document.createElement('span');points.className='points';points.textContent='+'+showValue(asNumber(item.points),0)+' pts';
           row.append(detail,points);findings.append(row);
         });
       }
       const coverage=document.getElementById('coverage');
-      (coverageItems.length?coverageItems:['URL and domain: analyzed','DNS: status unavailable','Live webpage: not inspected']).forEach(t=>{const span=document.createElement('span');span.textContent=t;coverage.append(span)});
+      (coverageItems.length?coverageItems:['URL and domain: analyzed','DNS: status unavailable','Live webpage: not inspected']).forEach(t=>{
+        const span=document.createElement('span');span.textContent=String(t);coverage.append(span);
+      });
       document.getElementById('copy-summary').addEventListener('click',async()=>{
-        const summary=`PhishGuard experimental report\nURL: ${data.url}\nV3 numerical class: ${data.prediction.predicted_label}\nP(class 1): ${(Number(data.prediction.probability_label_1)*100).toFixed(1)}% (uncalibrated)\nProvisional risk index: ${safeScore}/100 (${level})\nRule findings: ${items.map(x=>x.description).join('; ')||'None in checked signals'}\nClass-label mapping not verified. ${dnsPart}. Live webpage not inspected. Scan ID: ${data.scan_id||'unavailable'}.`;
-        try{await navigator.clipboard.writeText(summary);document.getElementById('copy-summary').textContent='Copied'}catch(_){document.getElementById('copy-summary').textContent='Copy unavailable'}
+        const summary=[
+          'PhishGuard experimental report',
+          'URL: '+(data.url||'unavailable'),
+          'Assessment status: '+assessmentStatus,
+          'Configured brand-reference status: '+brandStatus,
+          'Brand: '+(brandName||'not identified'),
+          'Reference domain: '+(referenceDomain||'not available'),
+          'V3 numerical class: '+classLabel,
+          'P(class 1): '+(p1===null?'unavailable':(p1*100).toFixed(1)+'%')+' (uncalibrated)',
+          'Provisional risk index: '+(safeScore===null?'unavailable':safeScore.toFixed(1)+'/100')+' ('+level+')',
+          'Rule findings: '+(items.map(x=>x&&x.description).filter(Boolean).join('; ')||'None in checked signals'),
+          'Assessment warnings: '+(warnings.join('; ')||'None supplied'),
+          'Class-label mapping and calibration not independently validated.',
+          dnsPart+'. Live webpage not inspected.',
+          'Scan ID: '+(data.scan_id||'unavailable')
+        ].join('\n');
+        try{await navigator.clipboard.writeText(summary);document.getElementById('copy-summary').textContent='Copied';}
+        catch(_){document.getElementById('copy-summary').textContent='Copy unavailable';}
       });
       document.getElementById('print-report').addEventListener('click',()=>window.print());
     })();

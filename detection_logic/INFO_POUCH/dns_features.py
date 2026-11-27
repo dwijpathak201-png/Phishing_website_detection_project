@@ -28,16 +28,14 @@ from config import DNS_TIMEOUT_SECONDS
 # 1. DNS CONFIGURATION
 # ==================================================
 
-# Temporary development DNS servers.
-# These were previously reachable using Windows nslookup.
-# Their accessibility through dnspython must still be tested.
-
+# Public DNS fallback servers.
+# Used when system resolver configuration is unavailable or empty.
 DNS_SERVERS = [
-    "192.168.1.1",
     "1.1.1.1",
+    "8.8.8.8",
 ]
 
-DNS_QUERY_TIMEOUT = 2.0
+DNS_QUERY_TIMEOUT = 1.0
 
 
 # ==================================================
@@ -224,16 +222,14 @@ def extract_dns_features(
         )
 
     try:
-
-        # Do not load the problematic automatic
-        # DNS server ordering discovered on Windows.
-        resolver = dns.resolver.Resolver(
-            configure=False
-        )
-
-        # Prefer the local network DNS server.
-        # Cloudflare DNS is the alternative.
-        resolver.nameservers = DNS_SERVERS.copy()
+        # Prefer system-configured resolver, fallback to reliable public DNS
+        try:
+            resolver = dns.resolver.Resolver(configure=True)
+            if not resolver.nameservers:
+                resolver.nameservers = DNS_SERVERS.copy()
+        except Exception:
+            resolver = dns.resolver.Resolver(configure=False)
+            resolver.nameservers = DNS_SERVERS.copy()
 
         # Maximum wait per DNS server attempt.
         resolver.timeout = min(
@@ -242,7 +238,7 @@ def extract_dns_features(
         )
 
         # Total lifetime for each record lookup.
-        resolver.lifetime = timeout
+        resolver.lifetime = min(timeout, 2.0)
 
     except (
         dns.exception.DNSException,
@@ -278,12 +274,10 @@ def extract_dns_features(
 
     mx_records: List[str] = []
 
-    # If the hostname does not exist,
-    # skip the second lookup.
-    if a_status == "nxdomain":
-
+    # If the domain is non-existent or DNS is unreachable/timing out,
+    # avoid redundant lookups.
+    if a_status in ("nxdomain", "timeout", "resolver_error"):
         mx_status = "not_checked"
-
     else:
 
         mx_answers, mx_status = _lookup_record(
